@@ -25,8 +25,7 @@ export const ingestRoundUpdate = async (message: string, channel: string) => {
 
 	if (process.env.CM13_BOT_DISCORD_EMOJI_BLUE) {
 		channel_msay.send(
-			`${formatEmoji(process.env.CM13_BOT_DISCORD_EMOJI_BLUE)} \`Round Update\`@\`${data.source}\`: ${
-				data.type === 'round-complete' ? 'Round Completed' : 'Round Started'
+			`${formatEmoji(process.env.CM13_BOT_DISCORD_EMOJI_BLUE)} \`Round Update\`@\`${data.source}\`: ${data.type === 'round-complete' ? 'Round Completed' : 'Round Started'
 			}`
 		);
 		return;
@@ -42,73 +41,9 @@ export const ingestRoundUpdate = async (message: string, channel: string) => {
 	channel_msay.send({ embeds: [newEmbed] });
 };
 
-export const unlockLrc = async () => {
-	if (!process.env.CM13_BOT_DISCORD_GUILD_TALK_CHANNEL || !process.env.CM13_BOT_DISCORD_GUILD || !process.env.CM13_BOT_DISCORD_GUILD_TOGGLE_ROLE)
-		return;
-
-	const { client } = container;
-
-	const lastRoundChat = client.channels.cache.get(process.env.CM13_BOT_DISCORD_GUILD_TALK_CHANNEL);
-	if (!(lastRoundChat instanceof TextChannel)) return;
-
-	const server = client.guilds.cache.get(process.env.CM13_BOT_DISCORD_GUILD);
-	if (!server) return;
-
-	const roleToEdit = server.roles.cache.get(process.env.CM13_BOT_DISCORD_GUILD_TOGGLE_ROLE);
-	if (!roleToEdit) return;
-
-	lastRoundChat.permissionOverwrites.edit(roleToEdit, { SendMessages: true });
-
-	const newEmbed = new EmbedBuilder();
-	newEmbed.setDescription('This channel will be locked when the next round begins. :lock:');
-	newEmbed.setTitle('Round Complete');
-	newEmbed.setTimestamp();
-	newEmbed.setColor('Green');
-
-	const webhook = await fetchOrCreateHook(lastRoundChat)
-
-	webhook.send({
-		embeds: [newEmbed],
-		username: process.env.CM13_BOT_DISCORD_WEBHOOK_NAME,
-		avatarURL: process.env.CM13_BOT_DISCORD_WEBHOOK_PROFILE_PICTURE
-	});
-};
-
-export const lockLrc = async () => {
-	if (!process.env.CM13_BOT_DISCORD_GUILD_TALK_CHANNEL || !process.env.CM13_BOT_DISCORD_GUILD || !process.env.CM13_BOT_DISCORD_GUILD_TOGGLE_ROLE)
-		return;
-
-	const { client } = container;
-
-	const lastRoundChat = client.channels.cache.get(process.env.CM13_BOT_DISCORD_GUILD_TALK_CHANNEL);
-	if (!(lastRoundChat instanceof TextChannel)) return;
-
-	const server = client.guilds.cache.get(process.env.CM13_BOT_DISCORD_GUILD);
-	if (!server) return;
-
-	const roleToEdit = server.roles.cache.get(process.env.CM13_BOT_DISCORD_GUILD_TOGGLE_ROLE);
-	if (!roleToEdit) return;
-
-	lastRoundChat.permissionOverwrites.edit(roleToEdit, { SendMessages: false });
-
-	const newEmbed = new EmbedBuilder();
-	newEmbed.setDescription('This channel will be locked until the current round finishes. :lock:');
-	newEmbed.setTitle('Channel Locked');
-	newEmbed.setTimestamp();
-	newEmbed.setColor('Red');
-
-	const webhook = await fetchOrCreateHook(lastRoundChat)
-
-	webhook.send({
-		embeds: [newEmbed],
-		username: process.env.CM13_BOT_DISCORD_WEBHOOK_NAME,
-		avatarURL: process.env.CM13_BOT_DISCORD_WEBHOOK_PROFILE_PICTURE
-	});
-};
-
 const newThread = async (round_id: string, round_name?: string) => {
 	const { client } = container;
-	
+
 	const lastRoundChat = client.channels.cache.get(process.env.CM13_BOT_DISCORD_GUILD_TALK_CHANNEL);
 	if (!(lastRoundChat instanceof TextChannel)) return;
 
@@ -136,11 +71,11 @@ const newThread = async (round_id: string, round_name?: string) => {
 	const threads = await lastRoundChat.threads.fetchActive()
 
 	const fiveHourAgo = Date.now() - (Time.Hour * 5)
-	for(const thread in threads.threads) {
+	for (const thread in threads.threads) {
 		const threadEntity = lastRoundChat.threads.cache.get(thread)
-		if(!threadEntity) continue
+		if (!threadEntity) continue
 
-		if(threadEntity.createdTimestamp < fiveHourAgo)
+		if (threadEntity.createdTimestamp < fiveHourAgo)
 			threadEntity.setLocked(true, "Time expired.")
 	}
 }
@@ -148,10 +83,10 @@ const newThread = async (round_id: string, round_name?: string) => {
 const handlePredatorRound = async (round_id: string, map_name?: string) => {
 	const { client } = container;
 
-	if(!process.env.CM13_BOT_DISCORD_GUILD_YAUTJA_CHANNEL) return
-	
+	if (!process.env.CM13_BOT_DISCORD_GUILD_YAUTJA_CHANNEL) return
+
 	const channel = client.channels.cache.get(process.env.CM13_BOT_DISCORD_GUILD_YAUTJA_CHANNEL)
-	if(!(channel instanceof TextChannel)) return
+	if (!(channel instanceof TextChannel)) return
 
 	const webhook = await fetchOrCreateHook(channel)
 
